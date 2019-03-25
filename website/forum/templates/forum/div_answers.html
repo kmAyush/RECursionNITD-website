@@ -17,8 +17,8 @@
                         <br>
                         <span class="small comment-meta"><a href="{% url 'user_profile:view_profile' answer.user_id.id  %}">{{ answer.user_id }}</a> last updated on {{answer.updated_at}}</span>
                         <span style="float:right;margin-bottom: 0px;">
-                <div id="reply_btn" ans-id="{{answer.id}}"><a href="{% url 'forum:add_comment_answer' answer.id %}" class="voteReply text-right small p-1" > Reply <i class="fas fa-reply"></i></a>&nbsp;&nbsp;</div>
-                <div id='reply_form' > </div>
+                                <div class="reply_btn" ans-id="{{answer.id}}" user-id={{answer.user_id.id}}><a href="{% url 'forum:add_comment_answer' answer.id %}" class="voteReply text-right small p-1" > Reply <i class="fas fa-reply"></i></a>&nbsp;&nbsp;</div>
+                                <div id='reply_form{{answer.user_id.id}}'  > </div>
                 <span >
                   {% if request.user != answer.user_id %}
                   {% if  answer.id in voted %}
@@ -128,23 +128,25 @@
   
     })
 
-    $('#reply_btn').click(function(e)
+    $('.reply_btn').click(function(e)
     {
         e.preventDefault()
         $(this).toggle()
         var id= $(this).attr('ans-id')
+        var user_id=$(this).attr('user-id')
+        console.log(user_id)
         $.ajax({
         method: "GET",
         url: "/forum/comment_answer/"+id,
         success: function (data)
         {
-           var id_name = "#reply_form"
+           var id_name = "#reply_form"+user_id
            console.log(id_name)
            $(id_name).html(data).show()
         },
         error:handleFormError,
      })
-    }) 
+    })
 
     $('.u_a_com').click(function(e){
             e.preventDefault()
