@@ -666,9 +666,14 @@ def add_comment_answer(request, id):
             if msg not in messages:
                 messages += (msg,)
         result = send_mass_mail(messages, fail_silently=False)
-        return HttpResponseRedirect(reverse('forum:detail_questions', args=(question_id.id,)))
+        profile=Profile.objects.all()
+        answers=Answers.objects.all()
+        comments_answers=Comments_Answers.objects.all()
+        question=answer.question_id
+        args = {'profile':profile,'answers': answers,  'comments_answers':comments_answers,'question':question }
+        return render(request, 'forum/div_answers.html',args)
 
-    return render(request, 'forum/comment.html', {'form': form})
+    return render(request, 'forum/comment_a.html', {'upform': form})
 
 @login_required
 def update_comment_answer(request, id):
@@ -713,9 +718,14 @@ def update_comment_answer(request, id):
                   if msg not in messages:
                      messages += (msg,)
               result = send_mass_mail(messages, fail_silently=False)
-            return HttpResponseRedirect(reverse('forum:detail_questions', args=(question_id.id,)))
+            profile=Profile.objects.all()
+            answers=Answers.objects.all()
+            comments_answers=Comments_Answers.objects.all()
+            question=answer.question_id
+            args = {'profile':profile,'answers': answers,  'comments_answers':comments_answers,'question':question }
+            return render(request, 'forum/div_answers.html',args)
 
-    return render(request, 'forum/comment.html', {'form': form, 'comment': comment})
+    return render(request, 'forum/comment_a.html', {'upform': form, 'comment': comment})
 
 
 @login_required
