@@ -56,6 +56,11 @@ def update_experience(request, id):
 
         if form.is_valid():
             form.save()
+            flag = 0
+            if experience.verification_Status == 'Approved':
+                experience.verification_Status = 'Review Pending'
+                flag = 1
+            experience.save()
 
             if experience.verification_Status == 'Changes Requested':
                 revision = Revisions.objects.get(experience = experience)
@@ -72,6 +77,23 @@ def update_experience(request, id):
                 msg = (subject, message, 'webmaster@localhost', [user.email])
                 if msg not in messages:
                     messages += (msg,)
+                result = send_mass_mail(messages, fail_silently=False)
+
+            elif experience.verification_Status == 'Review Pending' and flag == 1:
+                profiles = Profile.objects.filter(~Q(role='3'))
+                messages = ()
+                for profile in profiles:
+                    user = profile.user
+                    current_site = get_current_site(request)
+                    subject = 'New Activity in RECruitments'
+                    message = render_to_string('update_experience_to_all_email.html', {
+                        'user': user,
+                        'domain': current_site.domain,
+                        'experience': Experiences.objects.get(pk=experience.id),
+                    })
+                    msg = (subject, message, 'webmaster@localhost', [user.email])
+                    if msg not in messages:
+                        messages += (msg,)
                 result = send_mass_mail(messages, fail_silently=False)
 
             return redirect('interview_exp:list_experiences')
@@ -123,6 +145,9 @@ def search_experience(request, key):
             experiences_found.append([SequenceMatcher(None, experience.company.lower(), key.lower()).ratio(), experience])
         if SequenceMatcher(None, str(experience.year), key.lower()).ratio() > 0.5:
             experiences_found.append([SequenceMatcher(None, str(experience.year), key.lower()).ratio(), experience])
+        if SequenceMatcher(None, experience.user.username.lower(), key.lower()).ratio() > 0.5:
+            experiences_found.append([SequenceMatcher(None, experience.user.username.lower(), key.lower()).ratio(), experience])
+    profiles = Profile.objects.all()
     experiences_found.sort(key=lambda x: x[0], reverse=True)
     experiences = []
     for experience in experiences_found:
@@ -147,7 +172,6 @@ def search_experience(request, key):
             return HttpResponse('')
             experiences_list = paginator.page(paginator.num_pages)
     ie_count = len(experiences)
-    profiles = Profile.objects.all()
     args = {'form_search': search, 'profile': profiles, 'experiences': experiences_list, 'ie_count': ie_count}
     if request.is_ajax():
         return render(request, 'exp_list.html', args)
