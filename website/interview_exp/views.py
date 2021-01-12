@@ -26,7 +26,7 @@ def add_experience(request):
             for profile in profiles:
                 user = profile.user
                 current_site = get_current_site(request)
-                subject = 'New Activity in RECruitments'
+                subject = 'New Activity in Interview Experiences Section'
                 message = render_to_string('new_experience_entry_email.html', {
                     'user': user,
                     'domain': current_site.domain,
@@ -38,6 +38,9 @@ def add_experience(request):
             result = send_mass_mail(messages, fail_silently=False)
 
             return redirect('interview_exp:list_experiences')
+
+    if form.errors:
+        return render(request, 'experience-form.html', {'form': form})      
 
     return render(request, 'experience-form.html', {'form': form})
 
@@ -68,7 +71,7 @@ def update_experience(request, id):
                 messages = ()
                 user = profile.user
                 current_site = get_current_site(request)
-                subject = 'New Activity in RECruitments'
+                subject = 'New Activity in Interview Experiences Section'
                 message = render_to_string('update_experience_email.html', {
                     'user': user,
                     'domain': current_site.domain,
@@ -85,7 +88,7 @@ def update_experience(request, id):
                 for profile in profiles:
                     user = profile.user
                     current_site = get_current_site(request)
-                    subject = 'New Activity in RECruitments'
+                    subject = 'New Activity in Interview Experiences Section'
                     message = render_to_string('update_experience_to_all_email.html', {
                         'user': user,
                         'domain': current_site.domain,
@@ -97,6 +100,9 @@ def update_experience(request, id):
                 result = send_mass_mail(messages, fail_silently=False)
 
             return redirect('interview_exp:list_experiences')
+
+        if form.errors:
+            return render(request, 'experience-form.html', {'form': form})       
 
     return render(request, 'experience-form.html', {'form': form, 'experience': experience})
 
@@ -276,7 +282,7 @@ def revise_experience(request, id, action):
                 messages = ()
                 user = profile.user
                 current_site = get_current_site(request)
-                subject = 'New Activity in RECruitments'
+                subject = 'New Activity in Interview Experiences Section'
                 message = render_to_string('changes_requested_email.html', {
                     'user': user,
                     'domain': current_site.domain,
@@ -303,7 +309,7 @@ def revise_experience(request, id, action):
                 messages = ()
                 user = profile.user
                 current_site = get_current_site(request)
-                subject = 'New Activity in RECruitments'
+                subject = 'New Activity in Interview Experiences Section'
                 message = render_to_string('changes_requested_email.html', {
                     'user': user,
                     'domain': current_site.domain,
